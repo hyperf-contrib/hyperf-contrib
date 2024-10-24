@@ -9,5 +9,5 @@ it('should pass', function () {
 });
 
 it('noop', function () {
-    expect(fn () => Noop::noop())->not()->toThrow(Exception::class);
+    $this->assertSame('noop', Noop::noop());
 });

@@ -6,8 +6,8 @@ namespace HyperfContrib\Noop;
 
 class Noop
 {
-    public static function noop(): void
+    public static function noop(): string
     {
-        // noop
+        return 'noop';
     }
 }
