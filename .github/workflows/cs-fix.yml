@@ -3,10 +3,10 @@ name: Tests
 on: ['push', 'pull_request']
 
 jobs:
-  tests:
+  php-cs-fixer:
     strategy:
       matrix:
-        php-version: [ 8.1, 8.2, 8.3 ]
+        php-version: [ 8.1 ]
         platform: [ ubuntu-latest ]
     runs-on: ${{ matrix.platform }}
 
@@ -25,5 +25,5 @@ jobs:
       - name: Install Dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
-      - name: Tests
-        run: ./vendor/bin/pest --ci
+      - name: PHP CS Fixer
+        run: ./vendor/bin/php-cs-fixer fix $1 --dry-run --diff
