@@ -5,9 +5,9 @@ declare(strict_types=1);
 use HyperfContrib\Noop\Noop;
 
 it('should pass', function () {
-    $this->assertTrue(true);
+    expect(true)->toBeTrue();
 });
 
 it('noop', function () {
-    $this->assertSame('noop', Noop::noop());
+    expect(Noop::noop())->toBe('noop');
 });

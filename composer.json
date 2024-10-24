@@ -33,6 +33,7 @@
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.64",
-        "pestphp/pest": "^1.23"
+        "pestphp/pest": "^1.23",
+        "phpstan/phpstan": "^1.12"
     }
 }

@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  tests:
+  pest:
     strategy:
       matrix:
         php-version: [ 8.1, 8.2, 8.3 ]
@@ -31,5 +31,8 @@ jobs:
       - name: Install Dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
-      - name: Tests
+      - name: Run PHPStan
+        run: ./vendor/bin/phpstan analyse
+
+      - name: Run Tests
         run: ./vendor/bin/pest --ci
