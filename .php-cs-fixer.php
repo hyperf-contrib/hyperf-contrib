@@ -42,6 +42,7 @@ return $config->setRules([
     'blank_lines_before_namespace' => true,
     'single_quote' => true,
     'trailing_comma_in_multiline' => ['elements' => ['arrays', 'parameters', 'match']],
+    'binary_operator_spaces'            => ['default' => 'align_single_space_minimal',]
 ])
     ->setRiskyAllowed(true)
     ->setFinder($finder);
