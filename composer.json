@@ -6,6 +6,7 @@
         "php": ">=8.0"
     },
     "replace": {
+        "hyperf-contrib/noop": "*",
         "hyperf-contrib/tracing": "*"
     },
     "autoload": {
@@ -21,10 +22,6 @@
             "email": "four_leaf_clover@foxmail.com"
         }
     ],
-    "require-dev": {
-        "pestphp/pest": "^3.5",
-        "friendsofphp/php-cs-fixer": "^3.64"
-    },
     "scripts": {
         "cs-fix": "php-cs-fixer fix $1",
         "test": "./vendor/bin/pest --ci"
@@ -33,5 +30,9 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true
         }
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.64",
+        "pestphp/pest": "^1.23"
     }
 }
