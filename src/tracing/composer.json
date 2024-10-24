@@ -1,0 +1,20 @@
+{
+  "name": "hyperf-contrib/tracing",
+  "description": "Tracing component based on the OpenTelemetry protocol",
+  "type": "library",
+  "require": {
+    "php": ">=8.0"
+  },
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "HyperfContrib\\Tracing\\": "src/"
+    }
+  },
+  "authors": [
+    {
+      "name": "Flc",
+      "email": "four_leaf_clover@foxmail.com"
+    }
+  ]
+}

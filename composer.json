@@ -1,0 +1,39 @@
+{
+    "name": "hyperf-contrib/contrib",
+    "description": "Hyperf peripheral components",
+    "type": "library",
+    "require": {
+        "php": ">=8.1"
+    },
+    "replace": {
+        "hyperf-contrib/noop": "*",
+        "hyperf-contrib/tracing": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "HyperfContrib\\Noop\\": "src/noop/src",
+            "HyperfContrib\\Tracing\\": "src/tracing/src"
+        }
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Flc",
+            "email": "four_leaf_clover@foxmail.com"
+        }
+    ],
+    "scripts": {
+        "cs-fix": "php-cs-fixer fix $1",
+        "test": "./vendor/bin/pest --ci"
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.64",
+        "pestphp/pest": "^1.23",
+        "phpstan/phpstan": "^1.12"
+    }
+}

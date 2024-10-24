@@ -1,0 +1,34 @@
+name: PHP CS Fixer
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  php-cs-fixer:
+    strategy:
+      matrix:
+        php-version: [ 8.1 ]
+        platform: [ ubuntu-latest ]
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: swoole
+          tools: composer:v2
+          coverage: xdebug
+
+      - name: Install Dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: PHP CS Fixer
+        run: ./vendor/bin/php-cs-fixer fix $1 --dry-run --diff
