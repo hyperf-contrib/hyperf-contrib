@@ -1,5 +1,5 @@
 {
-    "name": "hyperf-contrib/contrib",
+    "name": "hyperf-contrib/hyperf-contrib",
     "description": "Hyperf peripheral components",
     "type": "library",
     "require": {
@@ -14,6 +14,11 @@
             "HyperfContrib\\Noop\\": "src/noop/src",
             "HyperfContrib\\OpenTelemetry\\": "src/open-telemetry/src"
         }
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.64",
+        "pestphp/pest": "^1.23",
+        "phpstan/phpstan": "^1.12"
     },
     "license": "MIT",
     "authors": [
@@ -30,10 +35,5 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true
         }
-    },
-    "require-dev": {
-        "friendsofphp/php-cs-fixer": "^3.64",
-        "pestphp/pest": "^1.23",
-        "phpstan/phpstan": "^1.12"
     }
 }

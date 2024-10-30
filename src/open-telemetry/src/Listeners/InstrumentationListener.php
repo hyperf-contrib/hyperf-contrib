@@ -10,8 +10,8 @@ use OpenTelemetry\API\Instrumentation\CachedInstrumentation;
 abstract class InstrumentationListener
 {
     public function __construct(
-        protected CachedInstrumentation $instrumentation,
-        protected Switcher $switcher,
+        protected readonly CachedInstrumentation $instrumentation,
+        protected readonly Switcher $switcher,
     ) {
     }
 }

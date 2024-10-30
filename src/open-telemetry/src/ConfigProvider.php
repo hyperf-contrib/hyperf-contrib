@@ -17,7 +17,8 @@ class ConfigProvider
 
         return [
             'dependencies' => [
-                CachedInstrumentation::class => Factory\CachedInstrumentationFactory::class,
+                Exporter\ExporterInterface::class => Exporter\OtlpExporter::class,
+                CachedInstrumentation::class      => Factory\CachedInstrumentationFactory::class,
             ],
             'listeners' => [
                 Listeners\DbQueryExecutedListener::class,
