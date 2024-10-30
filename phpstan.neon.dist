@@ -2,6 +2,8 @@ parameters:
 	level: 6
 	paths:
 		- src/
+	excludePaths:
+		- vendor/
 	parallel:
 		jobSize: 20
 		maximumNumberOfProcesses: 32
