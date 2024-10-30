@@ -32,6 +32,7 @@
         "test": "./vendor/bin/pest --ci"
     },
     "config": {
+        "sort-packages": true,
         "allow-plugins": {
             "pestphp/pest-plugin": true
         }
