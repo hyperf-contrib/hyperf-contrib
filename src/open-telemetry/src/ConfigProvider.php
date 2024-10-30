@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace HyperfContrib\OpenTelemetry;
 
+use OpenTelemetry\API\Instrumentation\CachedInstrumentation;
+
 class ConfigProvider
 {
     /**
@@ -15,6 +17,7 @@ class ConfigProvider
 
         return [
             'dependencies' => [
+                CachedInstrumentation::class => Factory\CachedInstrumentationFactory::class,
             ],
             'listeners' => [
                 Listeners\DbQueryExecutedListener::class,

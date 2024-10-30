@@ -10,8 +10,8 @@ use OpenTelemetry\API\Instrumentation\CachedInstrumentation;
 class Switcher
 {
     public function __construct(
-        protected CachedInstrumentation $instrumentation,
-        protected ConfigInterface $config,
+        protected readonly CachedInstrumentation $instrumentation,
+        protected readonly ConfigInterface $config,
     ) {
     }
 
@@ -35,10 +35,11 @@ class Switcher
     {
         if (null === $key) {
             return $this->instrumentation->tracer()->isEnabled()
-                && $this->config->get('open-telemetry.instrumentation.tracing', true);
+                    && $this->isEnabled()
+                    && $this->config->get('open-telemetry.instrumentation.tracing', true);
         }
 
         return $this->isTracingEnabled()
-            && $this->config->get("open-telemetry.instrumentation.listeners.{$key}", true);
+                && $this->config->get("open-telemetry.instrumentation.listeners.{$key}", true);
     }
 }
