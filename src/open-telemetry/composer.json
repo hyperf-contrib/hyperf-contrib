@@ -9,7 +9,8 @@
     "hyperf/event": "~3.1.0",
     "hyperf/di": "~3.1.0",
     "hyperf/database": "~3.1.0",
-    "open-telemetry/api": "^1.1"
+    "open-telemetry/api": "^1.1",
+    "hyperf/http-server": "~3.1.0"
   },
   "license": "MIT",
   "autoload": {

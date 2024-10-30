@@ -21,6 +21,7 @@ class ConfigProvider
             ],
             'listeners' => [
                 Listeners\DbQueryExecutedListener::class,
+                Listeners\ClientRequestListener::class,
             ],
             'publish' => [
                 [
