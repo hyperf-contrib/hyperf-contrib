@@ -41,6 +41,8 @@ class ClientRequestListener extends InstrumentationListener implements ListenerI
                 TraceAttributes::HTTP_REQUEST_METHOD => $event->request->getMethod(),
                 TraceAttributes::URL_FULL            => (string) $event->request->getUri(),
                 TraceAttributes::URL_PATH            => $event->request->getUri()->getPath(),
+                TraceAttributes::USER_AGENT_NAME     => $event->request->getHeaderLine('User-Agent'),
+                TraceAttributes::USER_AGENT_ORIGINAL => $event->request->getHeaderLine('User-Agent'),
             ])->end($nowInNs);
     }
 }
