@@ -23,6 +23,8 @@ class ConfigProvider
             'listeners' => [
                 Listeners\DbQueryExecutedListener::class,
                 Listeners\ClientRequestListener::class,
+                Listeners\CommandListener::class,
+                Listeners\CrontabListener::class,
             ],
             'publish' => [
                 [

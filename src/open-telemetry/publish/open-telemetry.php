@@ -2,14 +2,15 @@
 
 declare(strict_types=1);
 
+use function Hyperf\Support\env;
 use OpenTelemetry\SemConv\ResourceAttributes;
 
 return [
     // The OpenTelemetry SDK will use this service resource to identify the service.
     'resource' => [
-        ResourceAttributes::SERVICE_NAMESPACE           => 'service_namespace',
-        ResourceAttributes::SERVICE_NAME                => 'service_name',
-        ResourceAttributes::DEPLOYMENT_ENVIRONMENT_NAME => 'deployment_environment_name',
+        ResourceAttributes::SERVICE_NAMESPACE           => env('APP_NAMESPACE', 'hyperf-contrib'),
+        ResourceAttributes::SERVICE_NAME                => env('APP_NAME', 'hyperf-app'),
+        ResourceAttributes::DEPLOYMENT_ENVIRONMENT_NAME => env('APP_ENV', 'production'),
     ],
 
     // The OpenTelemetry SDK will use this URL to send the spans to the collector.
@@ -22,21 +23,23 @@ return [
     // The OpenTelemetry SDK will use this instrumentation to listen to the events.
     'instrumentation' => [
         // The OpenTelemetry SDK will enable the instrumentation.
-        'enabled' => true,
+        'enabled' => env('OTEL_INSTRUMENTATION_ENABLED', true),
 
         // The OpenTelemetry SDK will enable the instrumentation tracing.
-        'tracing' => true,
+        'tracing' => env('OTEL_INSTRUMENTATION_TRACING_ENABLED', true),
 
         // The OpenTelemetry SDK will enable the instrumentation meter.
-        'meter' => true,
+        'meter' => env('OTEL_INSTRUMENTATION_METER_ENABLED', true),
 
         // The OpenTelemetry SDK will enable the instrumentation logger.
-        'logger' => true,
+        'logger' => env('OTEL_INSTRUMENTATION_LOGGER_ENABLED', true),
 
         // The OpenTelemetry SDK will enable the instrumentation listener.
         'listeners' => [
-            'client_request' => true,
-            'db_query'       => true,
+            'client_request' => env('OTEL_INSTRUMENTATION_LISTENERS_CLIENT_REQUEST', true),
+            'db_query'       => env('OTEL_INSTRUMENTATION_LISTENERS_DB_QUERY', true),
+            'command'        => env('OTEL_INSTRUMENTATION_LISTENERS_COMMAND', true),
+            'crontab'        => env('OTEL_INSTRUMENTATION_LISTENERS_CRONTAB', true),
         ],
     ],
 ];
