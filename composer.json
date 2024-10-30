@@ -7,12 +7,12 @@
     },
     "replace": {
         "hyperf-contrib/noop": "*",
-        "hyperf-contrib/tracing": "*"
+        "hyperf-contrib/open-telemetry": "*"
     },
     "autoload": {
         "psr-4": {
             "HyperfContrib\\Noop\\": "src/noop/src",
-            "HyperfContrib\\Tracing\\": "src/tracing/src"
+            "HyperfContrib\\OpenTelemetry\\": "src/open-telemetry/src"
         }
     },
     "license": "MIT",
