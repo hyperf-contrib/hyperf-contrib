@@ -16,7 +16,7 @@ return [
     // The OpenTelemetry SDK will use this URL to send the spans to the collector.
     'exporter' => [
         'otlp' => [
-            'endpoint' => 'http://localhost:4317',
+            'endpoint' => 'http://localhost:4318',
         ],
     ],
 

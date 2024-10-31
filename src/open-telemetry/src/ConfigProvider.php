@@ -7,6 +7,7 @@ namespace HyperfContrib\OpenTelemetry;
 use GuzzleHttp\Client;
 use Hyperf\Guzzle\ClientFactory;
 use OpenTelemetry\API\Instrumentation\CachedInstrumentation;
+use OpenTelemetry\SDK\Resource\ResourceInfo;
 
 class ConfigProvider
 {
@@ -21,6 +22,7 @@ class ConfigProvider
             'dependencies' => [
                 Contract\ExporterInterface::class => Exporter\OtlpExporter::class,
                 CachedInstrumentation::class      => Factory\CachedInstrumentationFactory::class,
+                ResourceInfo::class               => Factory\OTelResourceFactory::class,
                 Client::class                     => ClientFactory::class,
             ],
             'listeners' => [

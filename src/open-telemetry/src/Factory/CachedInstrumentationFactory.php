@@ -22,8 +22,7 @@ class CachedInstrumentationFactory
     {
         Context::setStorage(new SwooleContextStorage(new ContextStorage()));
 
-        $exporter = $container->get(ExporterInterface::class);
-        $exporter->configure();
+        $container->get(ExporterInterface::class)->configure();
 
         return new CachedInstrumentation(
             name: 'hyperf-contrib/open-telemetry',
