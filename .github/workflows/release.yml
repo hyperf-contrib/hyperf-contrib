@@ -10,7 +10,7 @@ on:
 
 jobs:
   release:
-    if: github.repository == 'hyperf/hyperf'
+    if: github.repository == 'hyperf-contrib/hyperf-contrib'
     runs-on: ubuntu-latest
     env:
       SSH_PRIVATE_KEY: ${{ secrets.SPLIT_PRIVATE_KEY }}
@@ -28,6 +28,6 @@ jobs:
       - name: Split And Push
         run: |
           git config pull.rebase true
-          git config --global user.email "group@hyperf.io"
-          git config --global user.name "Hyperf Developers"
+          git config --global user.email "hyperf-contrib@flc.io"
+          git config --global user.name "hyperf-contrib Developers"
           ./bin/release.sh ${{ github.event.inputs.tag }}
