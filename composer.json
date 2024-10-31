@@ -3,6 +3,12 @@
     "description": "Hyperf Contrib is a collection of components for Hyperf.",
     "type": "library",
     "license": "MIT",
+    "authors": [
+        {
+            "name": "Flc",
+            "email": "four_leaf_clover@foxmail.com"
+        }
+    ],
     "require": {
         "php": ">=8.1"
     },
@@ -18,26 +24,43 @@
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.64",
-        "pestphp/pest": "^1.23",
+        "hyperf/command": "~3.1.0",
+        "hyperf/crontab": "~3.1.0",
+        "hyperf/database": "~3.1.0",
+        "hyperf/di": "~3.1.0",
+        "hyperf/event": "~3.1.0",
+        "hyperf/guzzle": "~3.1.0",
+        "hyperf/http-server": "~3.1.0",
+        "open-telemetry/api": "^1.1",
+        "open-telemetry/context-swoole": "^1.0",
+        "open-telemetry/exporter-otlp": "^1.1",
+        "open-telemetry/sdk": "^1.1",
+        "open-telemetry/sem-conv": "^1.27",
+        "pestphp/pest": "^2.36",
         "phpstan/phpstan": "^1.12"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
-    "authors": [
-        {
-            "name": "Flc",
-            "email": "four_leaf_clover@foxmail.com"
-        }
-    ],
     "scripts": {
         "cs-fix": "php-cs-fixer fix $1",
         "test": "./vendor/bin/pest --ci",
-        "phpstan": "phpstan analyse"
+        "phpstan": "phpstan analyse --memory-limit=-1"
     },
     "config": {
         "sort-packages": true,
+        "optimize-autoloader": true,
         "allow-plugins": {
-            "pestphp/pest-plugin": true
+            "pestphp/pest-plugin": true,
+            "php-http/discovery": false,
+            "tbachert/spi": false
+        }
+    },
+    "extra": {
+        "branch-alias": {},
+        "hyperf": {
+            "config": [
+                "HyperfContrib\\OpenTelemetry\\ConfigProvider"
+            ]
         }
     }
 }
