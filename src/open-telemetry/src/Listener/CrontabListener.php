@@ -2,14 +2,13 @@
 
 declare(strict_types=1);
 
-namespace HyperfContrib\OpenTelemetry\Listeners;
+namespace HyperfContrib\OpenTelemetry\Listener;
 
-use Hyperf\Command\Event\AfterExecute;
+use Hyperf\Crontab\Event\AfterExecute;
 use Hyperf\Event\Contract\ListenerInterface;
 use OpenTelemetry\API\Trace\SpanKind;
-use OpenTelemetry\SemConv\TraceAttributes;
 
-class CommandListener extends InstrumentationListener implements ListenerInterface
+class CrontabListener extends InstrumentationListener implements ListenerInterface
 {
     public function listen(): array
     {
@@ -28,17 +27,18 @@ class CommandListener extends InstrumentationListener implements ListenerInterfa
 
     protected function onAfterExecute(AfterExecute $event): void
     {
-        if (! $this->switcher->isTracingEnabled('command')) {
+        if (! $this->switcher->isTracingEnabled('crontab')) {
             return;
         }
 
         $nowInNs = (int) (microtime(true) * 1E9);
 
-        $this->instrumentation->tracer()->spanBuilder($event->getCommand()->getName())
+        $this->instrumentation->tracer()->spanBuilder($event->crontab->getName())
             ->setSpanKind(SpanKind::KIND_INTERNAL)
             ->startSpan()
             ->setAttributes([
-                TraceAttributes::PROCESS_COMMAND => $event->getCommand()->getName(),
-            ])->end($nowInNs);
+                'crontab' => $event->crontab->getName(), // todo: check if this is correct
+            ])
+            ->end($nowInNs);
     }
 }

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace HyperfContrib\OpenTelemetry\Listeners;
+namespace HyperfContrib\OpenTelemetry\Listener;
 
 use Hyperf\Event\Contract\ListenerInterface;
 

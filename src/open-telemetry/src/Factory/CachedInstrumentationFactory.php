@@ -4,20 +4,26 @@ declare(strict_types=1);
 
 namespace HyperfContrib\OpenTelemetry\Factory;
 
-use HyperfContrib\OpenTelemetry\Exporter\ExporterInterface;
+use Hyperf\Contract\ContainerInterface;
+use HyperfContrib\OpenTelemetry\Contract\ExporterInterface;
 use OpenTelemetry\API\Instrumentation\CachedInstrumentation;
+use OpenTelemetry\Context\Context;
+use OpenTelemetry\Context\ContextStorage;
+use OpenTelemetry\Contrib\Context\Swoole\SwooleContextStorage;
 use OpenTelemetry\SemConv\Version;
 
 class CachedInstrumentationFactory
 {
-    public function __construct(
-        protected ExporterInterface $exporter,
-    ) {
-    }
-
-    public function __invoke(): CachedInstrumentation
+    /**
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
+     */
+    public function __invoke(ContainerInterface $container): CachedInstrumentation
     {
-        $this->exporter->configure();
+        Context::setStorage(new SwooleContextStorage(new ContextStorage()));
+
+        $exporter = $container->get(ExporterInterface::class);
+        $exporter->configure();
 
         return new CachedInstrumentation(
             name: 'hyperf-contrib/open-telemetry',

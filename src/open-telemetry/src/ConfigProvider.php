@@ -17,14 +17,14 @@ class ConfigProvider
 
         return [
             'dependencies' => [
-                Exporter\ExporterInterface::class => Exporter\OtlpExporter::class,
+                Contract\ExporterInterface::class => Exporter\OtlpExporter::class,
                 CachedInstrumentation::class      => Factory\CachedInstrumentationFactory::class,
             ],
             'listeners' => [
-                Listeners\DbQueryExecutedListener::class,
-                Listeners\ClientRequestListener::class,
-                Listeners\CommandListener::class,
-                Listeners\CrontabListener::class,
+                Listener\DbQueryExecutedListener::class,
+                Listener\ClientRequestListener::class,
+                Listener\CommandListener::class,
+                Listener\CrontabListener::class,
             ],
             'publish' => [
                 [

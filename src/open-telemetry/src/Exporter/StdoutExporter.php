@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace HyperfContrib\OpenTelemetry\Exporter;
 
 use Hyperf\Contract\ConfigInterface;
@@ -9,9 +7,6 @@ use Hyperf\Contract\ContainerInterface;
 use HyperfContrib\OpenTelemetry\Contract\ExporterInterface;
 use OpenTelemetry\API\Common\Time\Clock;
 use OpenTelemetry\API\Trace\Propagation\TraceContextPropagator;
-use OpenTelemetry\Context\Context;
-use OpenTelemetry\Context\ContextStorage;
-use OpenTelemetry\Contrib\Context\Swoole\SwooleContextStorage;
 use OpenTelemetry\Contrib\Otlp\LogsExporter;
 use OpenTelemetry\Contrib\Otlp\MetricExporter;
 use OpenTelemetry\Contrib\Otlp\OtlpHttpTransportFactory;
@@ -21,17 +16,24 @@ use OpenTelemetry\SDK\Common\Export\TransportFactoryInterface;
 use OpenTelemetry\SDK\Logs\LoggerProvider;
 use OpenTelemetry\SDK\Logs\Processor\BatchLogRecordProcessor;
 use OpenTelemetry\SDK\Metrics\MeterProvider;
+use OpenTelemetry\SDK\Metrics\MetricExporter\ConsoleMetricExporterFactory;
 use OpenTelemetry\SDK\Metrics\MetricReader\ExportingReader;
 use OpenTelemetry\SDK\Resource\ResourceInfo;
 use OpenTelemetry\SDK\Resource\ResourceInfoFactory;
 use OpenTelemetry\SDK\Sdk;
 use OpenTelemetry\SDK\Trace\Sampler\ParentBased;
 use OpenTelemetry\SDK\Trace\Sampler\TraceIdRatioBasedSampler;
+use OpenTelemetry\SDK\Trace\SpanExporter\ConsoleSpanExporter;
+use OpenTelemetry\SDK\Trace\SpanExporter\ConsoleSpanExporterFactory;
 use OpenTelemetry\SDK\Trace\SpanProcessor\BatchSpanProcessor;
+use OpenTelemetry\SDK\Trace\SpanProcessorFactory;
 use OpenTelemetry\SDK\Trace\TracerProvider;
 use OpenTelemetry\SemConv\ResourceAttributes;
 
-class OtlpExporter implements ExporterInterface
+/**
+ * todo: Implement the OpenTelemetry exporter.
+ */
+class StdoutExporter implements ExporterInterface
 {
     protected ConfigInterface $config;
 
@@ -55,13 +57,8 @@ class OtlpExporter implements ExporterInterface
             ])
         )));
 
-        $spanExporter = new SpanExporter(
-            (new OtlpHttpTransportFactory())->create(
-                endpoint: $this->config->get('open-telemetry.exporter.otlp.endpoint') . '/v1/traces',
-                contentType:'application/x-protobuf',
-                compression: TransportFactoryInterface::COMPRESSION_GZIP,
-            )
-            // (new StreamTransportFactory())->create('php://stdout', 'application/json');
+        $spanProcessor = (new SpanProcessorFactory())->create(
+            (new ConsoleSpanExporterFactory())->create()
         );
 
         $logExporter = new LogsExporter(
@@ -72,36 +69,18 @@ class OtlpExporter implements ExporterInterface
             )
         );
 
-        $reader = new ExportingReader(
-            new MetricExporter(
-                (new OtlpHttpTransportFactory())->create(
-                    endpoint: $this->config->get('open-telemetry.exporter.otlp.endpoint') . '/v1/metrics',
-                    contentType: 'application/x-protobuf',
-                    compression: TransportFactoryInterface::COMPRESSION_GZIP,
-                )
-            )
+        $meterReader = new ExportingReader(
+            (new ConsoleMetricExporterFactory())->create(),
         );
 
         $meterProvider = MeterProvider::builder()
             ->setResource($resource)
-            ->addReader($reader)
+            ->addReader($meterReader)
             ->build();
 
         $tracerProvider = TracerProvider::builder()
-            ->addSpanProcessor(
-                new BatchSpanProcessor(
-                    $spanExporter,
-                    Clock::getDefault(),
-                    BatchSpanProcessor::DEFAULT_MAX_QUEUE_SIZE,
-                    BatchSpanProcessor::DEFAULT_SCHEDULE_DELAY,
-                    BatchSpanProcessor::DEFAULT_EXPORT_TIMEOUT,
-                    BatchSpanProcessor::DEFAULT_MAX_EXPORT_BATCH_SIZE,
-                    true,
-                )
-            )
+            ->addSpanProcessor($spanProcessor)
             ->setResource($resource)
-            //->setSampler(new ParentBased(new TraceIdRatioBasedSampler(0.1))) // todo: config sampler
-            //->setSampler(new TraceIdRatioBasedSampler(0.1))
             ->build();
 
         $loggerProvider = LoggerProvider::builder()
