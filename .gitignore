@@ -1,6 +1,7 @@
 /phpstan.neon
 /phpunit.xml
 /.phpunit.result.cache
+/.php-cs-fixer.cache
 /tests/
 vendor/
 .idea/

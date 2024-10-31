@@ -1,0 +1,40 @@
+{
+    "name": "hyperf-contrib/open-telemetry",
+    "description": "OpenTelemetry component for Hyperf",
+    "type": "library",
+    "require": {
+        "php": ">=8.1",
+        "hyperf/command": "~3.1.0",
+        "hyperf/crontab": "~3.1.0",
+        "hyperf/database": "~3.1.0",
+        "hyperf/di": "~3.1.0",
+        "hyperf/event": "~3.1.0",
+        "hyperf/guzzle": "~3.1.0",
+        "hyperf/http-server": "~3.1.0",
+        "open-telemetry/api": "^1.1",
+        "open-telemetry/context-swoole": "^1.0",
+        "open-telemetry/exporter-otlp": "^1.1",
+        "open-telemetry/sdk": "^1.1",
+        "open-telemetry/sem-conv": "^1.27"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "HyperfContrib\\OpenTelemetry\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Flc",
+            "email": "four_leaf_clover@foxmail.com"
+        }
+    ],
+    "extra": {
+        "hyperf": {
+            "config": "HyperfContrib\\OpenTelemetry\\ConfigProvider"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    }
+}

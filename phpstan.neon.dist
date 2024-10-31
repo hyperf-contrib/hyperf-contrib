@@ -1,4 +1,13 @@
 parameters:
 	level: 6
 	paths:
-	    - src/
+		- src/
+	excludePaths:
+		- vendor/*
+	parallel:
+		jobSize: 20
+		maximumNumberOfProcesses: 32
+		minimumNumberOfJobsPerProcess: 2
+	inferPrivatePropertyTypeFromConstructor: true
+	treatPhpDocTypesAsCertain: true
+	reportUnmatchedIgnoredErrors: false
