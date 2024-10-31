@@ -36,10 +36,10 @@ return [
 
         // The OpenTelemetry SDK will enable the instrumentation listener.
         'listeners' => [
-            'client_request' => env('OTEL_INSTRUMENTATION_LISTENERS_CLIENT_REQUEST', true),
-            'db_query'       => env('OTEL_INSTRUMENTATION_LISTENERS_DB_QUERY', true),
-            'command'        => env('OTEL_INSTRUMENTATION_LISTENERS_COMMAND', true),
-            'crontab'        => env('OTEL_INSTRUMENTATION_LISTENERS_CRONTAB', true),
+            'client_request' => ['enabled' => env('OTEL_INSTRUMENTATION_LISTENERS_CLIENT_REQUEST', true), 'options' => []],
+            'db_query'       => ['enabled' => env('OTEL_INSTRUMENTATION_LISTENERS_DB_QUERY', true), 'options' => []],
+            'command'        => ['enabled' => env('OTEL_INSTRUMENTATION_LISTENERS_COMMAND', true), 'options' => []],
+            'crontab'        => ['enabled' => env('OTEL_INSTRUMENTATION_LISTENERS_CRONTAB', true), 'options' => []],
         ],
     ],
 ];
