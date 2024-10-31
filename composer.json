@@ -1,6 +1,6 @@
 {
     "name": "hyperf-contrib/hyperf-contrib",
-    "description": "Hyperf peripheral components",
+    "description": "Hyperf Contrib is a collection of components for Hyperf.",
     "type": "library",
     "license": "MIT",
     "require": {

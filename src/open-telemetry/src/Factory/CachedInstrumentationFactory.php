@@ -10,9 +10,14 @@ use OpenTelemetry\SemConv\Version;
 
 class CachedInstrumentationFactory
 {
-    public function __invoke(ExporterInterface $exporter): CachedInstrumentation
+    public function __construct(
+        protected ExporterInterface $exporter,
+    ) {
+    }
+
+    public function __invoke(): CachedInstrumentation
     {
-        $exporter->configure();
+        $this->exporter->configure();
 
         return new CachedInstrumentation(
             name: 'hyperf-contrib/open-telemetry',

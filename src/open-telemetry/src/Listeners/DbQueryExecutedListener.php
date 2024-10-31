@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace HyperfContrib\OpenTelemetry\Listeners;
 
+use Hyperf\Collection\Arr;
 use Hyperf\Database\Events\QueryExecuted;
 use Hyperf\Event\Contract\ListenerInterface;
 use Hyperf\Stringable\Str;
@@ -35,6 +36,9 @@ class DbQueryExecutedListener extends InstrumentationListener implements Listene
 
         $nowInNs = (int) (microtime(true) * 1E9);
 
+        // todo: check if the switcher is on
+        $sql = false ? $this->combineSqlAndBindings($event) : $event->sql;
+
         $this->instrumentation->tracer()->spanBuilder('sql ' . $event->sql)
             ->setSpanKind(SpanKind::KIND_CLIENT)
             ->setStartTimestamp($this->calculateQueryStartTime($nowInNs, $event->time))
@@ -43,11 +47,24 @@ class DbQueryExecutedListener extends InstrumentationListener implements Listene
                 TraceAttributes::DB_SYSTEM         => $event->connection->getDriverName(),
                 TraceAttributes::DB_NAMESPACE      => $event->connection->getDatabaseName(),
                 TraceAttributes::DB_OPERATION_NAME => Str::upper(Str::before($event->sql, ' ')),
-                TraceAttributes::DB_USER           => $event->connection->getConfig('username'), // todo: check if it's correct
-                TraceAttributes::DB_QUERY_TEXT     => $event->sql,
-                TraceAttributes::SERVER_ADDRESS    => $event->connection->getConfig('host'), // todo: check if it's correct
+                TraceAttributes::DB_USER           => $event->connection->getConfig('username'),
+                TraceAttributes::DB_QUERY_TEXT     => $sql,
+                TraceAttributes::SERVER_ADDRESS    => $event->connection->getConfig('host'),
+                TraceAttributes::SERVER_PORT       => $event->connection->getConfig('port'),
             ])
             ->end($nowInNs);
+    }
+
+    protected function combineSqlAndBindings(QueryExecuted $event): string
+    {
+        $sql = $event->sql;
+        if (! Arr::isAssoc($event->bindings)) {
+            foreach ($event->bindings as $value) {
+                $sql = Str::replaceFirst('?', "'{$value}'", $sql);
+            }
+        }
+
+        return $sql;
     }
 
     private function calculateQueryStartTime(int $nowInNs, float $queryTimeMs): int
