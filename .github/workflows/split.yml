@@ -29,7 +29,7 @@ jobs:
       - name: Split And Push
         run: |
           git config pull.rebase true
-          git config --global user.email "four_leaf_clover@foxmail.com"
+          git config --global user.email "hyperf-contrib@flc.io"
           git config --global user.name "hyperf-contrib Developers"
 
           if [ -z "${{ github.event.inputs.repo }}" ]; then
