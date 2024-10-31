@@ -6,7 +6,6 @@ namespace HyperfContrib\OpenTelemetry\Listener;
 
 use HyperfContrib\OpenTelemetry\Switcher;
 use OpenTelemetry\API\Instrumentation\CachedInstrumentation;
-use OpenTelemetry\API\Trace\TracerInterface;
 
 abstract class InstrumentationListener
 {

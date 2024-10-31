@@ -35,10 +35,6 @@
         }
     },
     "config": {
-        "sort-packages": true,
-        "allow-plugins": {
-            "php-http/discovery": false,
-            "tbachert/spi": false
-        }
+        "sort-packages": true
     }
 }

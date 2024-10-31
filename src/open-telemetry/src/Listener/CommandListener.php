@@ -7,14 +7,13 @@ namespace HyperfContrib\OpenTelemetry\Listener;
 use Carbon\Carbon;
 use Hyperf\Command\Event\AfterExecute;
 use Hyperf\Command\Event\BeforeHandle;
+use function Hyperf\Coroutine\defer;
 use Hyperf\Event\Contract\ListenerInterface;
+use OpenTelemetry\API\Trace\Span;
 use OpenTelemetry\API\Trace\SpanKind;
 use OpenTelemetry\API\Trace\StatusCode;
 use OpenTelemetry\Context\Context;
-use OpenTelemetry\API\Trace\Span;
 use OpenTelemetry\SemConv\TraceAttributes;
-use function Hyperf\Coroutine\defer;
-use function Hyperf\Coroutine\go;
 
 class CommandListener extends InstrumentationListener implements ListenerInterface
 {
@@ -36,24 +35,24 @@ class CommandListener extends InstrumentationListener implements ListenerInterfa
         match ($event::class) {
             BeforeHandle::class => $this->onBeforeHandle($event),
             AfterExecute::class => $this->onAfterExecute($event),
-            default => null,
+            default             => null,
         };
     }
 
     protected function onBeforeHandle(BeforeHandle $event): void
     {
         $parent = Context::getCurrent();
-        $span = $this->instrumentation->tracer()->spanBuilder($event->getCommand()->getName())
+        $span   = $this->instrumentation->tracer()->spanBuilder($event->getCommand()->getName())
             ->setSpanKind(SpanKind::KIND_INTERNAL)
             ->setAttributes([
-                TraceAttributes::PROCESS_COMMAND => $event->getCommand()->getName(),
-                TraceAttributes::PROCESS_COMMAND_ARGS => $event->getCommand()->getDefinition()->getArguments(),
-                TraceAttributes::PROCESS_CREATION_TIME => Carbon::now()->toIso8601String(),
+                TraceAttributes::PROCESS_COMMAND         => $event->getCommand()->getName(),
+                TraceAttributes::PROCESS_COMMAND_ARGS    => $event->getCommand()->getDefinition()->getArguments(),
+                TraceAttributes::PROCESS_CREATION_TIME   => Carbon::now()->toIso8601String(),
                 TraceAttributes::PROCESS_EXECUTABLE_NAME => $event->getCommand()->getName(),
             ])
             ->startSpan();
 
-        $span->addEvent("before handle");
+        $span->addEvent('before handle');
 
         Context::storage()->attach($span->storeInContext($parent));
     }
