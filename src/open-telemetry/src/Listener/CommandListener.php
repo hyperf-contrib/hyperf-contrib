@@ -52,8 +52,6 @@ class CommandListener extends InstrumentationListener implements ListenerInterfa
             ])
             ->startSpan();
 
-        $span->addEvent('before handle');
-
         Context::storage()->attach($span->storeInContext($parent));
     }
 
@@ -83,8 +81,5 @@ class CommandListener extends InstrumentationListener implements ListenerInterfa
         } else {
             $span->setStatus(StatusCode::STATUS_OK);
         }
-
-        // events
-        $span->addEvent('after execute');
     }
 }
