@@ -16,7 +16,7 @@ return [
     // The OpenTelemetry SDK will use this URL to send the spans to the collector.
     'exporter' => [
         'otlp' => [
-            'endpoint' => 'http://localhost:4318',
+            'endpoint' => env('OTEL_EXPORTER_OTLP_ENDPOINT', 'http://localhost:4318'),
         ],
     ],
 
@@ -37,9 +37,12 @@ return [
         // The OpenTelemetry SDK will enable the instrumentation listener.
         'listeners' => [
             'client_request' => ['enabled' => env('OTEL_INSTRUMENTATION_LISTENERS_CLIENT_REQUEST', true), 'options' => []],
-            'db_query'       => ['enabled' => env('OTEL_INSTRUMENTATION_LISTENERS_DB_QUERY', true), 'options' => []],
-            'command'        => ['enabled' => env('OTEL_INSTRUMENTATION_LISTENERS_COMMAND', true), 'options' => []],
-            'crontab'        => ['enabled' => env('OTEL_INSTRUMENTATION_LISTENERS_CRONTAB', true), 'options' => []],
+            'db_query'       => ['enabled' => env('OTEL_INSTRUMENTATION_LISTENERS_DB_QUERY', true), 'options' => [
+                // combine the sql and bindings
+                'combine_sql_and_bindings' => false,
+            ]],
+            'command' => ['enabled' => env('OTEL_INSTRUMENTATION_LISTENERS_COMMAND', true), 'options' => []],
+            'crontab' => ['enabled' => env('OTEL_INSTRUMENTATION_LISTENERS_CRONTAB', true), 'options' => []],
         ],
     ],
 ];
