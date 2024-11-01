@@ -56,7 +56,7 @@ class ClientRequestListener extends InstrumentationListener implements ListenerI
             TraceAttributes::USER_AGENT_ORIGINAL => $event->request->getHeaderLine('User-Agent'),
             TraceAttributes::URL_QUERY           => $event->request->getUri()->getQuery(),
             TraceAttributes::CLIENT_ADDRESS      => (string) $event->request->getServerParams()['remote_addr'],
-            ...$event->request->getHeaders(),
+            ...$this->transformHeaders($event->request->getHeaders()),
         ]);
 
         Context::storage()->attach($span->storeInContext($parent));
@@ -82,11 +82,27 @@ class ClientRequestListener extends InstrumentationListener implements ListenerI
         $span->setAttributes([
             TraceAttributes::HTTP_RESPONSE_STATUS_CODE => $event->response->getStatusCode(),
             TraceAttributes::HTTP_RESPONSE_BODY_SIZE   => $event->response->getBody()->getSize(),
-            ...$event->response->getHeaders(),
+            ...$this->transformHeaders($event->response->getHeaders()),
         ]);
 
         if ($event->getThrowable() !== null) {
             $this->spanRecordException($span, $event->getThrowable());
         }
+    }
+
+    /**
+     * Transform headers to OpenTelemetry attributes.
+     *
+     * @param array<array<string>> $headers
+     * @return array<string, array<string>>
+     */
+    private function transformHeaders(array $headers): array
+    {
+        $result = [];
+        foreach ($headers as $key => $value) {
+            $result["http.request.header.$key"] = $value;
+        }
+
+        return $result;
     }
 }
