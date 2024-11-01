@@ -1,4 +1,4 @@
-# Hyperf Open-Telemetry
+# Open-Telemetry for Hyperf
 
 ## Installation
 
