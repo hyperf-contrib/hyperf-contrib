@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace HyperfContrib\OpenTelemetry\Listener;
 
+use function Hyperf\Coroutine\defer;
 use Hyperf\Event\Contract\ListenerInterface;
 use Hyperf\HttpServer\Event\RequestReceived;
 use OpenTelemetry\API\Trace\SpanKind;
@@ -32,12 +33,12 @@ class ClientRequestListener extends InstrumentationListener implements ListenerI
             return;
         }
 
-        $nowInNs = (int) (microtime(true) * 1E9);
-
         $span = $this->instrumentation->tracer()->spanBuilder($event->request->getMethod())
             ->setSpanKind(SpanKind::KIND_SERVER)
             ->startSpan();
-        $scope = $span->activate();
+        defer(function () use ($span) {
+            $span->end();
+        });
 
         $span->setAttributes([
             TraceAttributes::HTTP_REQUEST_METHOD => $event->request->getMethod(),
@@ -45,7 +46,10 @@ class ClientRequestListener extends InstrumentationListener implements ListenerI
             TraceAttributes::URL_PATH            => $event->request->getUri()->getPath(),
             TraceAttributes::USER_AGENT_NAME     => $event->request->getHeaderLine('User-Agent'),
             TraceAttributes::USER_AGENT_ORIGINAL => $event->request->getHeaderLine('User-Agent'),
-        ])->end($nowInNs);
-        $scope->detach();
+        ]);
+
+        if ($event->getThrowable() !== null) {
+            $this->spanRecordException($span, $event->getThrowable());
+        }
     }
 }
