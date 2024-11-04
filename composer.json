@@ -47,6 +47,7 @@
         "open-telemetry/sem-conv": "^1.27",
         "pestphp/pest": "^2.36",
         "phpstan/phpstan": "^1.12",
+        "phpstan/phpstan-mockery": "^1.1",
         "swoole/ide-helper": "^5.1"
     },
     "minimum-stability": "dev",

@@ -13,7 +13,10 @@ use HyperfContrib\OpenTelemetry\Switcher;
 use Mockery;
 use OpenTelemetry\API\Instrumentation\CachedInstrumentation;
 use OpenTelemetry\API\Instrumentation\Configurator;
+use OpenTelemetry\Context\Context;
+use OpenTelemetry\Context\ContextStorage;
 use OpenTelemetry\Context\ScopeInterface;
+use OpenTelemetry\Contrib\Context\Swoole\SwooleContextStorage;
 use OpenTelemetry\SDK\Common\Attribute\Attributes;
 use OpenTelemetry\SDK\Common\Instrumentation\InstrumentationScopeFactory;
 use OpenTelemetry\SDK\Logs\Exporter\InMemoryExporter as LogInMemoryExporter;
@@ -40,6 +43,8 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
+        Context::setStorage(new SwooleContextStorage(new ContextStorage()));
+
         $this->storage        = new ArrayObject();
         $this->tracerProvider = new TracerProvider(
             new SimpleSpanProcessor(
@@ -65,6 +70,8 @@ abstract class TestCase extends BaseTestCase
         parent::tearDown();
 
         $this->scope->detach();
+
+        Mockery::close();
     }
 
     /**

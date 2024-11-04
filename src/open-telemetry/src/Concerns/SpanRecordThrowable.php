@@ -15,11 +15,17 @@ trait SpanRecordThrowable
      * Record exception to span.
      *
      * @param SpanInterface $span
-     * @param Throwable $e
+     * @param ?Throwable $e
      * @return void
      */
-    protected function spanRecordException(SpanInterface $span, Throwable $e): void
+    protected function spanRecordException(SpanInterface $span, ?Throwable $e = null): void
     {
+        if ($e === null) {
+            $span->setStatus(StatusCode::STATUS_OK);
+
+            return;
+        }
+
         $span->setAttributes([
             TraceAttributes::EXCEPTION_TYPE       => get_class($e),
             TraceAttributes::EXCEPTION_MESSAGE    => $e->getMessage(),
