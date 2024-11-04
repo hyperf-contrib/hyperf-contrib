@@ -65,6 +65,9 @@ class CommandListener extends InstrumentationListener implements ListenerInterfa
         });
 
         $span = Span::fromContext($scope->context());
+        if (!$span->isRecording()) {
+            return;
+        }
         defer(function () use ($span) {
             $span->end();
         });
