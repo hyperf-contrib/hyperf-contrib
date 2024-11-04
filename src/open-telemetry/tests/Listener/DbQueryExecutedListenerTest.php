@@ -8,13 +8,14 @@ use Hyperf\Database\ConnectionInterface;
 use Hyperf\Database\Events\QueryExecuted;
 use HyperfContrib\OpenTelemetry\Listener\DbQueryExecutedListener;
 use HyperfContrib\OpenTelemetry\Switcher;
+use HyperfContrib\OpenTelemetry\Tests\TestCase;
 use Mockery;
 use OpenTelemetry\API\Instrumentation\CachedInstrumentation;
 use OpenTelemetry\API\Trace\SpanKind;
 use OpenTelemetry\SDK\Trace\ImmutableSpan;
 use OpenTelemetry\SDK\Trace\StatusData;
 
-class DbQueryExecutedListenerTest extends ListenerTestCase
+class DbQueryExecutedListenerTest extends TestCase
 {
     /**
      * @throws \Psr\Container\NotFoundExceptionInterface
