@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace HyperfContrib\OpenTelemetry\Listener;
 
 use Hyperf\Collection\Arr;
-use function Hyperf\Coroutine\defer;
 use Hyperf\Database\Events\QueryExecuted;
 use Hyperf\Event\Contract\ListenerInterface;
 use Hyperf\Stringable\Str;
@@ -39,7 +38,7 @@ class DbQueryExecutedListener extends InstrumentationListener implements Listene
         $nowInNs = (int) (microtime(true) * 1E9);
 
         // combine sql and bindings
-        $sql = $this->config->get('open_telemetry.instrumentation.listeners.db_query.options.combine_sql_and_bindings', false)
+        $sql = $this->config->get('open-telemetry.instrumentation.listeners.db_query.options.combine_sql_and_bindings', false)
             ? $this->combineSqlAndBindings($event)
             : $event->sql;
 
@@ -47,9 +46,6 @@ class DbQueryExecutedListener extends InstrumentationListener implements Listene
             ->setSpanKind(SpanKind::KIND_CLIENT)
             ->setStartTimestamp($this->calculateQueryStartTime($nowInNs, $event->time))
             ->startSpan();
-        defer(function () use ($span) {
-            $span->end();
-        });
 
         $span->setAttributes([
             TraceAttributes::DB_SYSTEM         => $event->connection->getDriverName(),
@@ -65,6 +61,8 @@ class DbQueryExecutedListener extends InstrumentationListener implements Listene
         if ($event->result instanceof \Throwable) {
             $this->spanRecordException($span, $event->result);
         }
+
+        $span->end();
     }
 
     protected function combineSqlAndBindings(QueryExecuted $event): string
