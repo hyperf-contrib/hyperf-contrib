@@ -22,28 +22,38 @@
             "HyperfContrib\\OpenTelemetry\\": "src/open-telemetry/src"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "HyperfContrib\\Noop\\Tests\\": "src/noop/tests",
+            "HyperfContrib\\OpenTelemetry\\Tests\\": "src/open-telemetry/tests"
+        }
+    },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.64",
         "hyperf/command": "~3.1.0",
+        "hyperf/config": "~3.1.0",
         "hyperf/crontab": "~3.1.0",
         "hyperf/database": "~3.1.0",
         "hyperf/di": "~3.1.0",
         "hyperf/event": "~3.1.0",
         "hyperf/guzzle": "~3.1.0",
         "hyperf/http-server": "~3.1.0",
+        "hyperf/testing": "^3.1",
+        "mockery/mockery": "^1.6",
         "open-telemetry/api": "^1.1",
         "open-telemetry/context-swoole": "^1.0",
         "open-telemetry/exporter-otlp": "^1.1",
         "open-telemetry/sdk": "^1.1",
         "open-telemetry/sem-conv": "^1.27",
         "pestphp/pest": "^2.36",
-        "phpstan/phpstan": "^1.12"
+        "phpstan/phpstan": "^1.12",
+        "swoole/ide-helper": "^5.1"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
     "scripts": {
         "cs-fix": "php-cs-fixer fix $1",
-        "test": "./vendor/bin/pest --ci",
+        "test": "./vendor/bin/pest --ci --color=always",
         "phpstan": "phpstan analyse --memory-limit=-1"
     },
     "config": {
