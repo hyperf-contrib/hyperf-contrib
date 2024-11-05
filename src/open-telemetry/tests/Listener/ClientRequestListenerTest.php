@@ -107,6 +107,7 @@ class ClientRequestListenerTest extends TestCase
         ]);
 
         $request->shouldReceive('getHeaderLine')->with('User-Agent')->andReturn('testing');
+        $request->shouldReceive('getHeaderLine')->with('x-forwarded-for')->andReturn('1.1.1.1');
 
         return $request;
     }
