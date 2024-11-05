@@ -31,6 +31,9 @@ class ConfigProvider
                 Listener\CommandListener::class,
                 Listener\CrontabListener::class,
             ],
+            'aspects' => [
+                Aspect\RedisAspect::class,
+            ],
             'publish' => [
                 [
                     'id'          => 'config',
