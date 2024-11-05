@@ -65,6 +65,8 @@ abstract class TestCase extends BaseTestCase
         parent::tearDown();
 
         $this->scope->detach();
+
+        Mockery::close();
     }
 
     /**

@@ -36,8 +36,14 @@ return [
 
         // The OpenTelemetry SDK will enable the instrumentation listener.
         'listeners' => [
-            'client_request' => ['enabled' => env('OTEL_INSTRUMENTATION_LISTENERS_CLIENT_REQUEST', true), 'options' => []],
-            'db_query'       => ['enabled' => env('OTEL_INSTRUMENTATION_LISTENERS_DB_QUERY', true), 'options' => [
+            'client_request' => ['enabled' => env('OTEL_INSTRUMENTATION_LISTENERS_CLIENT_REQUEST', true), 'options' => [
+                // headers whitelist, supports wildcards，e.g. ['x-custom-*']
+                'headers' => [
+                    'request'  => ['*'],
+                    'response' => ['*'],
+                ],
+            ]],
+            'db_query' => ['enabled' => env('OTEL_INSTRUMENTATION_LISTENERS_DB_QUERY', true), 'options' => [
                 // combine the sql and bindings
                 'combine_sql_and_bindings' => false,
             ]],
