@@ -64,6 +64,25 @@ class ClientRequestListenerTest extends TestCase
         $this->assertSame('GET /path', $span->getName());
         $this->assertSame(SpanKind::KIND_SERVER, $span->getKind());
         $this->assertSame(StatusCode::STATUS_OK, $span->getStatus()->getCode());
+        $this->assertSame('GET', $attributes->get('http.request.method'));
+        $this->assertSame('http://localhost:80/path?field1=value1&field2=value2', $attributes->get('url.full'));
+        $this->assertSame('/path', $attributes->get('url.path'));
+        $this->assertSame('http', $attributes->get('url.scheme'));
+        $this->assertSame('localhost', $attributes->get('server.address'));
+        $this->assertSame(80, $attributes->get('server.port'));
+        $this->assertSame('testing', $attributes->get('user_agent.original'));
+        $this->assertSame('field1=value1&field2=value2', $attributes->get('url.query'));
+        $this->assertSame('1.1.1.1', $attributes->get('client.address'));
+        $this->assertSame(200, $attributes->get('http.response.status_code'));
+        $this->assertSame(100, $attributes->get('http.response.body.size'));
+        $this->assertSame('testing', $attributes->get('http.request.header.user-agent'));
+        $this->assertSame('x-custom', $attributes->get('http.request.header.x-custom-header'));
+        $this->assertSame(['x-custom1'], $attributes->get('http.request.header.x-custom-header1'));
+        $this->assertNull($attributes->get('http.request.header.illegal-header'));
+        $this->assertSame(['application/json'], $attributes->get('http.response.header.content-type'));
+        $this->assertSame('x-custom', $attributes->get('http.response.header.x-custom-header'));
+        $this->assertSame(['x-custom1'], $attributes->get('http.response.header.x-custom-header1'));
+        $this->assertNull($attributes->get('http.response.header.illegal-header'));
     }
 
     protected function getServerRequest(): ServerRequestInterface
@@ -71,15 +90,19 @@ class ClientRequestListenerTest extends TestCase
         $request = Mockery::mock(ServerRequestInterface::class, [
             'getMethod' => 'GET',
             'getUri'    => Mockery::mock(UriInterface::class, [
-                'getScheme' => 'http',
-                'getHost'   => 'localhost',
-                'getPort'   => 80,
-                'getPath'   => '/path',
-                'getQuery'  => 'field1=value1&field2=value2',
+                'getScheme'  => 'http',
+                'getHost'    => 'localhost',
+                'getPort'    => 80,
+                'getPath'    => '/path',
+                'getQuery'   => 'field1=value1&field2=value2',
+                '__toString' => 'http://localhost:80/path?field1=value1&field2=value2',
             ]),
             'getServerParams' => ['remote_addr' => '1.1.1.1'],
             'getHeaders'      => [
-                'User-Agent' => 'testing',
+                'User-Agent'       => 'testing',
+                'X-Custom-Header'  => 'x-custom',
+                'X-Custom-Header1' => ['x-custom1'],
+                'Illegal-Header'   => 'illegal',
             ],
         ]);
 
@@ -96,7 +119,10 @@ class ClientRequestListenerTest extends TestCase
                 'getSize' => 100,
             ]),
             'getHeaders' => [
-                'Content-Type' => ['application/json'],
+                'Content-Type'     => ['application/json'],
+                'X-Custom-Header'  => 'x-custom',
+                'X-Custom-Header1' => ['x-custom1'],
+                'Illegal-Header'   => 'illegal',
             ],
         ]);
     }
@@ -107,14 +133,20 @@ class ClientRequestListenerTest extends TestCase
     protected function getConfig(): array
     {
         return [
-            'instrumentation' => [
-                'enabled'   => true,
-                'tracing'   => true,
-                'listeners' => [
-                    'client_request' => ['enabled' => true, 'options' => []],
+            'open-telemetry' => [
+                'instrumentation' => [
+                    'enabled'   => true,
+                    'tracing'   => true,
+                    'listeners' => [
+                        'client_request' => ['enabled' => true, 'options' => [
+                            'headers' => [
+                                'request'  => ['User-Agent', 'x-custom-*',],
+                                'response' => ['Content-Type', 'x-custom-*',],
+                            ],
+                        ]],
+                    ],
                 ],
             ],
         ];
-
     }
 }

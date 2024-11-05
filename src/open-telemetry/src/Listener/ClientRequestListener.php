@@ -7,6 +7,7 @@ namespace HyperfContrib\OpenTelemetry\Listener;
 use Hyperf\Event\Contract\ListenerInterface;
 use Hyperf\HttpServer\Event\RequestReceived;
 use Hyperf\HttpServer\Event\RequestTerminated;
+use Hyperf\Stringable\Str;
 use OpenTelemetry\API\Trace\Span;
 use OpenTelemetry\API\Trace\SpanKind;
 use OpenTelemetry\Context\Context;
@@ -95,9 +96,25 @@ class ClientRequestListener extends InstrumentationListener implements ListenerI
     {
         $result = [];
         foreach ($headers as $key => $value) {
-            $result["http.{$type}.header.$key"] = $value;
+            $key = Str::lower($key);
+            if ($this->canTransformHeaders($type, $key)) {
+                $result["http.{$type}.header.$key"] = $value;
+            }
         }
 
         return $result;
+    }
+
+    private function canTransformHeaders(string $type, string $key): bool
+    {
+        $headers = (array) $this->config->get("open-telemetry.instrumentation.listeners.client_request.options.headers.$type", ['*']);
+
+        foreach ($headers as $header) {
+            if (Str::is(Str::lower($header), $key)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

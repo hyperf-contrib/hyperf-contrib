@@ -54,7 +54,7 @@
     "prefer-stable": true,
     "scripts": {
         "cs-fix": "php-cs-fixer fix $1",
-        "test": "./vendor/bin/pest --ci --color=always",
+        "test": "./vendor/bin/pest --color=always",
         "phpstan": "phpstan analyse --memory-limit=-1"
     },
     "config": {
