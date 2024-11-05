@@ -34,21 +34,21 @@ return [
         // The OpenTelemetry SDK will enable the instrumentation logger.
         'logger' => env('OTEL_INSTRUMENTATION_LOGGER_ENABLED', true),
 
-        // The OpenTelemetry SDK will enable the instrumentation listener.
-        'listeners' => [
-            'client_request' => ['enabled' => env('OTEL_INSTRUMENTATION_LISTENERS_CLIENT_REQUEST', true), 'options' => [
+        // The OpenTelemetry SDK will enable the instrumentation features.
+        'features' => [
+            'client_request' => ['enabled' => env('OTEL_INSTRUMENTATION_FEATURES_CLIENT_REQUEST', true), 'options' => [
                 // headers whitelist, supports wildcards，e.g. ['x-custom-*']
                 'headers' => [
                     'request'  => ['*'],
                     'response' => ['*'],
                 ],
             ]],
-            'db_query' => ['enabled' => env('OTEL_INSTRUMENTATION_LISTENERS_DB_QUERY', true), 'options' => [
+            'db_query' => ['enabled' => env('OTEL_INSTRUMENTATION_FEATURES_DB_QUERY', true), 'options' => [
                 // combine the sql and bindings
                 'combine_sql_and_bindings' => false,
             ]],
-            'command' => ['enabled' => env('OTEL_INSTRUMENTATION_LISTENERS_COMMAND', true), 'options' => []],
-            'crontab' => ['enabled' => env('OTEL_INSTRUMENTATION_LISTENERS_CRONTAB', true), 'options' => []],
+            'command' => ['enabled' => env('OTEL_INSTRUMENTATION_FEATURES_COMMAND', true), 'options' => []],
+            'crontab' => ['enabled' => env('OTEL_INSTRUMENTATION_FEATURES_CRONTAB', true), 'options' => []],
         ],
     ],
 ];

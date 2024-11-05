@@ -23,22 +23,7 @@ class DbQueryExecutedListenerTest extends TestCase
      */
     public function test_db_query(): void
     {
-        $container = $this->getContainer([
-            'open-telemetry' => [
-                'instrumentation' => [
-                    'enabled'   => true,
-                    'tracing'   => true,
-                    'listeners' => [
-                        'db_query' => [
-                            'enabled' => true,
-                            'options' => [
-                                'combine_sql_and_bindings' => false,
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ]);
+        $container = $this->getContainer($this->getConfig());
 
         $this->assertCount(0, $this->storage);
 
@@ -85,5 +70,25 @@ class DbQueryExecutedListenerTest extends TestCase
             ->shouldReceive('getConfig')->with('host')->andReturn('localhost')
             ->shouldReceive('getConfig')->with('port')->andReturn(3306)
             ->getMock();
+    }
+
+    private function getConfig(): array
+    {
+        return [
+            'open-telemetry' => [
+                'instrumentation' => [
+                    'enabled'  => true,
+                    'tracing'  => true,
+                    'features' => [
+                        'db_query' => [
+                            'enabled' => true,
+                            'options' => [
+                                'combine_sql_and_bindings' => false,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
     }
 }
