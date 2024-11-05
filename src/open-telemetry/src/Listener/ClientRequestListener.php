@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace HyperfContrib\OpenTelemetry\Listener;
 
-use function Hyperf\Coroutine\defer;
 use Hyperf\Event\Contract\ListenerInterface;
 use Hyperf\HttpServer\Event\RequestReceived;
 use Hyperf\HttpServer\Event\RequestTerminated;
+use Hyperf\Stringable\Str;
 use OpenTelemetry\API\Trace\Span;
 use OpenTelemetry\API\Trace\SpanKind;
 use OpenTelemetry\Context\Context;
 use OpenTelemetry\SemConv\TraceAttributes;
+use Psr\Http\Message\ServerRequestInterface;
 
 class ClientRequestListener extends InstrumentationListener implements ListenerInterface
 {
@@ -40,11 +41,9 @@ class ClientRequestListener extends InstrumentationListener implements ListenerI
     {
         $parent = Context::getCurrent();
 
-        $span = $this->instrumentation->tracer()->spanBuilder($event->request->getMethod())
+        $span = $this->instrumentation->tracer()->spanBuilder($event->request->getMethod() . ' ' . $event->request->getUri()->getPath())
             ->setSpanKind(SpanKind::KIND_SERVER)
             ->startSpan();
-
-        $headers = $event->request->getHeaders();
 
         $span->setAttributes([
             TraceAttributes::HTTP_REQUEST_METHOD => $event->request->getMethod(),
@@ -55,7 +54,7 @@ class ClientRequestListener extends InstrumentationListener implements ListenerI
             TraceAttributes::SERVER_PORT         => $event->request->getUri()->getPort(),
             TraceAttributes::USER_AGENT_ORIGINAL => $event->request->getHeaderLine('User-Agent'),
             TraceAttributes::URL_QUERY           => $event->request->getUri()->getQuery(),
-            TraceAttributes::CLIENT_ADDRESS      => (string) $event->request->getServerParams()['remote_addr'],
+            TraceAttributes::CLIENT_ADDRESS      => $this->getRequestIP($event->request),
             ...$this->transformHeaders('request', $event->request->getHeaders()),
         ]);
 
@@ -67,17 +66,13 @@ class ClientRequestListener extends InstrumentationListener implements ListenerI
         if (!$scope = Context::storage()->scope()) {
             return;
         }
-        defer(function () use ($scope) {
-            $scope->detach();
-        });
 
         $span = Span::fromContext($scope->context());
         if (!$span->isRecording()) {
+            $scope->detach();
+
             return;
         }
-        defer(function () use ($span) {
-            $span->end();
-        });
 
         $span->setAttributes([
             TraceAttributes::HTTP_RESPONSE_STATUS_CODE => $event->response->getStatusCode(),
@@ -85,9 +80,10 @@ class ClientRequestListener extends InstrumentationListener implements ListenerI
             ...$this->transformHeaders('response', $event->response->getHeaders()),
         ]);
 
-        if ($event->getThrowable() !== null) {
-            $this->spanRecordException($span, $event->getThrowable());
-        }
+        $this->spanRecordException($span, $event->getThrowable());
+
+        $span->end();
+        $scope->detach();
     }
 
     /**
@@ -101,9 +97,37 @@ class ClientRequestListener extends InstrumentationListener implements ListenerI
     {
         $result = [];
         foreach ($headers as $key => $value) {
-            $result["http.{$type}.header.$key"] = $value;
+            $key = Str::lower($key);
+            if ($this->canTransformHeaders($type, $key)) {
+                $result["http.{$type}.header.$key"] = $value;
+            }
         }
 
         return $result;
+    }
+
+    private function canTransformHeaders(string $type, string $key): bool
+    {
+        $headers = (array) $this->config->get("open-telemetry.instrumentation.features.client_request.options.headers.$type", ['*']);
+
+        foreach ($headers as $header) {
+            if (Str::is(Str::lower($header), $key)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @return string
+     */
+    private function getRequestIP(ServerRequestInterface $request): string
+    {
+        return $request->getHeaderLine('x-forwarded-for')
+            ?: $request->getHeaderLine('remote-host')
+            ?: $request->getHeaderLine('x-real-ip')
+            ?: $request->getServerParams()['remote_addr'] ?? '';
     }
 }

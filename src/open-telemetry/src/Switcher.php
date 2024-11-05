@@ -40,6 +40,6 @@ class Switcher
         }
 
         return $this->isTracingEnabled()
-                && $this->config->get("open-telemetry.instrumentation.listeners.{$key}.enabled", true);
+                && $this->config->get("open-telemetry.instrumentation.features.{$key}.enabled", true);
     }
 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace HyperfContrib\OpenTelemetry\Tests\Listener;
 
-use Hyperf\Database\ConnectionInterface;
+use Hyperf\Database\Connection;
 use Hyperf\Database\Events\QueryExecuted;
 use HyperfContrib\OpenTelemetry\Listener\DbQueryExecutedListener;
 use HyperfContrib\OpenTelemetry\Switcher;
@@ -23,22 +23,7 @@ class DbQueryExecutedListenerTest extends TestCase
      */
     public function test_db_query(): void
     {
-        $container = $this->getContainer([
-            'open-telemetry' => [
-                'instrumentation' => [
-                    'enabled'   => true,
-                    'tracing'   => true,
-                    'listeners' => [
-                        'db_query' => [
-                            'enabled' => true,
-                            'options' => [
-                                'combine_sql_and_bindings' => false,
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ]);
+        $container = $this->getContainer($this->getConfig());
 
         $this->assertCount(0, $this->storage);
 
@@ -74,16 +59,36 @@ class DbQueryExecutedListenerTest extends TestCase
         $this->assertSame(3306, $attributes->get('server.port'));
     }
 
-    protected function getConnection(): ConnectionInterface
+    protected function getConnection(): Connection
     {
-        $connection = Mockery::mock(ConnectionInterface::class);
-        $connection->shouldReceive('getDriverName')->andReturn('mysql');
-        $connection->shouldReceive('getDatabaseName')->andReturn('hyperf');
-        $connection->shouldReceive('getName')->andReturn('default');
-        $connection->shouldReceive('getConfig')->with('username')->andReturn('root');
-        $connection->shouldReceive('getConfig')->with('host')->andReturn('localhost');
-        $connection->shouldReceive('getConfig')->with('port')->andReturn(3306);
+        return Mockery::mock(Connection::class, [
+            'getDriverName'   => 'mysql',
+            'getDatabaseName' => 'hyperf',
+            'getName'         => 'default',
+        ])
+            ->shouldReceive('getConfig')->with('username')->andReturn('root')
+            ->shouldReceive('getConfig')->with('host')->andReturn('localhost')
+            ->shouldReceive('getConfig')->with('port')->andReturn(3306)
+            ->getMock();
+    }
 
-        return $connection;
+    private function getConfig(): array
+    {
+        return [
+            'open-telemetry' => [
+                'instrumentation' => [
+                    'enabled'  => true,
+                    'tracing'  => true,
+                    'features' => [
+                        'db_query' => [
+                            'enabled' => true,
+                            'options' => [
+                                'combine_sql_and_bindings' => false,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
     }
 }
