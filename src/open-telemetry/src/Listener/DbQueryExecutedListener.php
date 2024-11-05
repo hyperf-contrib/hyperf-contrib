@@ -38,7 +38,7 @@ class DbQueryExecutedListener extends InstrumentationListener implements Listene
         $nowInNs = (int) (microtime(true) * 1E9);
 
         // combine sql and bindings
-        $sql = $this->config->get('open-telemetry.instrumentation.listeners.db_query.options.combine_sql_and_bindings', false)
+        $sql = $this->config->get('open-telemetry.instrumentation.features.db_query.options.combine_sql_and_bindings', false)
             ? $this->combineSqlAndBindings($event)
             : $event->sql;
 

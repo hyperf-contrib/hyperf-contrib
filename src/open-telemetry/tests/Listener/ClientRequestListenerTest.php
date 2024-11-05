@@ -135,9 +135,9 @@ class ClientRequestListenerTest extends TestCase
         return [
             'open-telemetry' => [
                 'instrumentation' => [
-                    'enabled'   => true,
-                    'tracing'   => true,
-                    'listeners' => [
+                    'enabled'  => true,
+                    'tracing'  => true,
+                    'features' => [
                         'client_request' => ['enabled' => true, 'options' => [
                             'headers' => [
                                 'request'  => ['User-Agent', 'x-custom-*',],
