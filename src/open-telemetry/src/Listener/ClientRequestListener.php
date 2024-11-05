@@ -12,6 +12,7 @@ use OpenTelemetry\API\Trace\Span;
 use OpenTelemetry\API\Trace\SpanKind;
 use OpenTelemetry\Context\Context;
 use OpenTelemetry\SemConv\TraceAttributes;
+use Psr\Http\Message\ServerRequestInterface;
 
 class ClientRequestListener extends InstrumentationListener implements ListenerInterface
 {
@@ -53,7 +54,7 @@ class ClientRequestListener extends InstrumentationListener implements ListenerI
             TraceAttributes::SERVER_PORT         => $event->request->getUri()->getPort(),
             TraceAttributes::USER_AGENT_ORIGINAL => $event->request->getHeaderLine('User-Agent'),
             TraceAttributes::URL_QUERY           => $event->request->getUri()->getQuery(),
-            TraceAttributes::CLIENT_ADDRESS      => (string) $event->request->getServerParams()['remote_addr'],
+            TraceAttributes::CLIENT_ADDRESS      => $this->getRequestIP($event->request),
             ...$this->transformHeaders('request', $event->request->getHeaders()),
         ]);
 
@@ -116,5 +117,17 @@ class ClientRequestListener extends InstrumentationListener implements ListenerI
         }
 
         return false;
+    }
+
+    /**
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @return string
+     */
+    private function getRequestIP(ServerRequestInterface $request): string
+    {
+        return $request->getHeaderLine('x-forwarded-for')
+            ?: $request->getHeaderLine('remote-host')
+            ?: $request->getHeaderLine('x-real-ip')
+            ?: $request->getServerParams()['remote_addr'] ?? '';
     }
 }
