@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use function Hyperf\Support\env;
+use OpenTelemetry\SDK\Trace\Sampler\AlwaysOnSampler;
 use OpenTelemetry\SemConv\ResourceAttributes;
 
 return [
@@ -19,6 +20,9 @@ return [
             'endpoint' => env('OTEL_EXPORTER_OTLP_ENDPOINT', 'http://localhost:4318'),
         ],
     ],
+
+    // The OpenTelemetry SDK will use this sampler to sample the spans.
+    'sampler' => new AlwaysOnSampler(),
 
     // The OpenTelemetry SDK will use this instrumentation to listen to the events.
     'instrumentation' => [
