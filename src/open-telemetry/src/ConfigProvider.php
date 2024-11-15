@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace HyperfContrib\OpenTelemetry;
 
-use GuzzleHttp\Client;
-use Hyperf\Guzzle\ClientFactory;
 use OpenTelemetry\API\Instrumentation\CachedInstrumentation;
 use OpenTelemetry\SDK\Resource\ResourceInfo;
 
@@ -23,7 +21,6 @@ class ConfigProvider
                 Contract\ExporterInterface::class => Exporter\OtlpExporter::class,
                 CachedInstrumentation::class      => Factory\CachedInstrumentationFactory::class,
                 ResourceInfo::class               => Factory\OTelResourceFactory::class,
-                Client::class                     => ClientFactory::class,
             ],
             'listeners' => [
                 Listener\DbQueryExecutedListener::class,
