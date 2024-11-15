@@ -27,12 +27,12 @@ class RedisAspect extends AbstractAspect
             return $proceedingJoinPoint->process();
         }
 
-        $args        = $proceedingJoinPoint->getArguments();
-        $command     = $args[0];
-        $commandFull = $command . ' ' . implode(' ', $args[1]);
+        $args        = $proceedingJoinPoint->arguments['keys'];
+        $command     = Str::lower($args['name']);
+        $commandFull = $command . ' ' . $this->buildCommandArguments($args['arguments']);
         $poolName    = (fn () => $this->poolName ?? 'default')->call($proceedingJoinPoint->getInstance());
 
-        $span = $this->instrumentation->tracer()->spanBuilder('redis ' . $command)
+        $span = $this->instrumentation->tracer()->spanBuilder($command)
             ->setSpanKind(SpanKind::KIND_CLIENT)
             ->startSpan();
 
@@ -57,5 +57,29 @@ class RedisAspect extends AbstractAspect
         }
 
         return $result;
+    }
+
+    /**
+     * Build the command arguments.
+     *
+     * @param array $args
+     * @return string
+     */
+    private function buildCommandArguments(array $args): string
+    {
+        $callback = static function (array $args) use (&$callback) {
+            $result = '';
+            foreach ($args as $arg) {
+                if (is_array($arg)) {
+                    $result .= $callback($arg);
+                } elseif (!is_object($arg)) { // fix: redis subscribe command
+                    $result .= $arg . ' ';
+                }
+            }
+
+            return $result;
+        };
+
+        return $callback($args);
     }
 }
