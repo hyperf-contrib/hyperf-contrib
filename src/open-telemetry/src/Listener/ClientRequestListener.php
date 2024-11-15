@@ -8,6 +8,7 @@ use Hyperf\Event\Contract\ListenerInterface;
 use Hyperf\HttpServer\Event\RequestReceived;
 use Hyperf\HttpServer\Event\RequestTerminated;
 use Hyperf\Stringable\Str;
+use OpenTelemetry\API\Trace\Propagation\TraceContextPropagator;
 use OpenTelemetry\API\Trace\Span;
 use OpenTelemetry\API\Trace\SpanKind;
 use OpenTelemetry\Context\Context;
@@ -39,10 +40,12 @@ class ClientRequestListener extends InstrumentationListener implements ListenerI
 
     protected function onRequestReceived(RequestReceived $event): void
     {
-        $parent = Context::getCurrent();
+        // Todo: refactor to replaceable of `TraceContextPropagator`
+        $context = TraceContextPropagator::getInstance()->extract($event->request->getHeaders());
 
         $span = $this->instrumentation->tracer()->spanBuilder($event->request->getMethod() . ' ' . $event->request->getUri()->getPath())
             ->setSpanKind(SpanKind::KIND_SERVER)
+            ->setParent($context)
             ->startSpan();
 
         $span->setAttributes([
@@ -58,7 +61,7 @@ class ClientRequestListener extends InstrumentationListener implements ListenerI
             ...$this->transformHeaders('request', $event->request->getHeaders()),
         ]);
 
-        Context::storage()->attach($span->storeInContext($parent));
+        Context::storage()->attach($span->storeInContext($context));
     }
 
     protected function onRequestTerminated(RequestTerminated $event): void
