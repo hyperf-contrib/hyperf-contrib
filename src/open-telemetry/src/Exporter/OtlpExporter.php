@@ -21,6 +21,7 @@ use OpenTelemetry\SDK\Metrics\MetricReader\ExportingReader;
 use OpenTelemetry\SDK\Resource\ResourceInfo;
 use OpenTelemetry\SDK\Sdk;
 use OpenTelemetry\SDK\Trace\Sampler\AlwaysOnSampler;
+use OpenTelemetry\SDK\Trace\Sampler\ParentBased;
 use OpenTelemetry\SDK\Trace\SpanProcessor\BatchSpanProcessor;
 use OpenTelemetry\SDK\Trace\TracerProvider;
 
@@ -88,7 +89,7 @@ class OtlpExporter implements ExporterInterface
                 )
             )
             ->setResource($this->resource)
-            ->setSampler($this->config->get('open-telemetry.sampler', new AlwaysOnSampler()))
+            ->setSampler($this->config->get('open-telemetry.sampler', new ParentBased(new AlwaysOnSampler())))
             ->build();
 
         $loggerProvider = LoggerProvider::builder()
