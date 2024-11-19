@@ -128,9 +128,11 @@ class ClientRequestListener extends InstrumentationListener implements ListenerI
      */
     private function getRequestIP(ServerRequestInterface $request): string
     {
-        return $request->getHeaderLine('x-forwarded-for')
+        $ips = $request->getHeaderLine('x-forwarded-for')
             ?: $request->getHeaderLine('remote-host')
             ?: $request->getHeaderLine('x-real-ip')
             ?: $request->getServerParams()['remote_addr'] ?? '';
+
+        return explode(',', $ips)[0] ?? '';
     }
 }
