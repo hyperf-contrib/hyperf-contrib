@@ -77,12 +77,7 @@ class GuzzleClientAspect extends AbstractAspect
                     $span->setAttribute(TraceAttributes::HTTP_RESPONSE_STATUS_CODE, $response->getStatusCode());
                     $span->setAttribute(TraceAttributes::NETWORK_PROTOCOL_VERSION, $response->getProtocolVersion());
                     $span->setAttribute(TraceAttributes::HTTP_RESPONSE_BODY_SIZE, $response->getHeaderLine('Content-Length'));
-                    foreach ($response->getHeaders() as $key => $value) {
-                        $key = Str::lower($key);
-                        if ($this->canTransformHeaders('response', $key)) {
-                            $span->setAttribute("http.response.header.{$key}", $value);
-                        }
-                    }
+                    $span->setAttributes($this->transformHeaders('response', $response->getHeaders()));
                     if ($response->getStatusCode() >= 400 && $response->getStatusCode() < 600) {
                         $span->setStatus(StatusCode::STATUS_ERROR);
                     }
@@ -124,7 +119,6 @@ class GuzzleClientAspect extends AbstractAspect
     private function canTransformHeaders(string $type, string $key): bool
     {
         $headers = (array) $this->config->get("open-telemetry.instrumentation.features.guzzle.options.headers.{$type}", ['*']);
-
         foreach ($headers as $header) {
             if (Str::is(Str::lower($header), $key)) {
                 return true;
