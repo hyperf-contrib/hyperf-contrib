@@ -30,7 +30,7 @@ class ConfigProvider
             ],
             'aspects' => [
                 Aspect\RedisAspect::class,
-                Aspect\HttpClientAspect::class,
+                Aspect\GuzzleClientAspect::class,
             ],
             'publish' => [
                 [
