@@ -53,6 +53,7 @@ return [
             ]],
             'command' => ['enabled' => env('OTEL_INSTRUMENTATION_FEATURES_COMMAND', true), 'options' => []],
             'crontab' => ['enabled' => env('OTEL_INSTRUMENTATION_FEATURES_CRONTAB', true), 'options' => []],
+            'guzzle'  => ['enabled' => env('OTEL_INSTRUMENTATION_FEATURES_GUZZLE', true), 'options' => []],
         ],
     ],
 ];
