@@ -31,80 +31,75 @@ class GuzzleClientAspect extends AbstractAspect
      */
     public function process(ProceedingJoinPoint $proceedingJoinPoint)
     {
-        try {
-            if ($this->switcher->isTracingEnabled('guzzle') === false) {
-                return $proceedingJoinPoint->process();
-            }
-
-            $parentContext = Context::getCurrent();
-
-            /**
-             * @var RequestInterface $request
-             */
-            $request = $proceedingJoinPoint->arguments['keys']['request'];
-            $method  = $request->getMethod();
-            $uri     = (string) $request->getUri();
-
-            // request
-            $span = $this->instrumentation->tracer()
-                ->spanBuilder($method . ' ' . $uri)
-                ->setParent($parentContext)
-                ->setSpanKind(SpanKind::KIND_CLIENT)
-                ->startSpan();
-
-            $context = $span->storeInContext($parentContext);
-
-            TraceContextPropagator::getInstance()->inject($request, HeadersPropagator::instance(), $context);
-
-            if ($request instanceof RequestInterface) {
-                $span->setAttributes([
-                    TraceAttributes::HTTP_REQUEST_METHOD => $method,
-                    TraceAttributes::URL_FULL            => $uri,
-                    TraceAttributes::URL_PATH            => $request->getUri()->getPath(),
-                    TraceAttributes::URL_SCHEME          => $request->getUri()->getScheme(),
-                    TraceAttributes::SERVER_ADDRESS      => $request->getUri()->getHost(),
-                    TraceAttributes::SERVER_PORT         => $request->getUri()->getPort(),
-                    TraceAttributes::USER_AGENT_ORIGINAL => $request->getHeaderLine('User-Agent'),
-                    TraceAttributes::URL_QUERY           => $request->getUri()->getQuery(),
-                    TraceAttributes::CLIENT_ADDRESS      => $this->getRequestIP($request),
-                    ...$this->transformHeaders('request', $request->getHeaders()),
-                ]);
-            }
-
-            // response
-            $promise = $proceedingJoinPoint->process();
-            if ($promise instanceof PromiseInterface) {
-                $promise->then(
-                    onFulfilled: function (ResponseInterface $response) use ($span) {
-                        $span->setAttribute(TraceAttributes::HTTP_RESPONSE_STATUS_CODE, $response->getStatusCode());
-                        $span->setAttribute(TraceAttributes::NETWORK_PROTOCOL_VERSION, $response->getProtocolVersion());
-                        $span->setAttribute(TraceAttributes::HTTP_RESPONSE_BODY_SIZE, $response->getHeaderLine('Content-Length'));
-                        foreach ($response->getHeaders() as $key => $value) {
-                            $key = Str::lower($key);
-                            if ($this->canTransformHeaders('response', $key)) {
-                                $span->setAttribute("http.response.header.{$key}", $value);
-                            }
-                        }
-                        if ($response->getStatusCode() >= 400 && $response->getStatusCode() < 600) {
-                            $span->setStatus(StatusCode::STATUS_ERROR);
-                        }
-                        $span->end();
-
-                        return $response;
-                    },
-                    onRejected: function (\Throwable $t) use ($span) {
-                        $this->spanRecordException($span, $t);
-                        $span->end();
-
-                        throw $t;
-                    }
-                );
-            }
-
-            return $promise;
-        } catch (\Throwable $e) {
-            print_r(__METHOD__ . ' in catch ' . $e->getMessage() . PHP_EOL);
+        if ($this->switcher->isTracingEnabled('guzzle') === false) {
+            return $proceedingJoinPoint->process();
         }
+
+        $parentContext = Context::getCurrent();
+
+        /**
+         * @var RequestInterface $request
+         */
+        $request = $proceedingJoinPoint->arguments['keys']['request'];
+        $method  = $request->getMethod();
+        $uri     = (string) $request->getUri();
+
+        // request
+        $span = $this->instrumentation->tracer()
+            ->spanBuilder($method . ' ' . $uri)
+            ->setParent($parentContext)
+            ->setSpanKind(SpanKind::KIND_CLIENT)
+            ->startSpan();
+
+        $context = $span->storeInContext($parentContext);
+
+        TraceContextPropagator::getInstance()->inject($request, HeadersPropagator::instance(), $context);
+
+        if ($request instanceof RequestInterface) {
+            $span->setAttributes([
+                TraceAttributes::HTTP_REQUEST_METHOD => $method,
+                TraceAttributes::URL_FULL            => $uri,
+                TraceAttributes::URL_PATH            => $request->getUri()->getPath(),
+                TraceAttributes::URL_SCHEME          => $request->getUri()->getScheme(),
+                TraceAttributes::SERVER_ADDRESS      => $request->getUri()->getHost(),
+                TraceAttributes::SERVER_PORT         => $request->getUri()->getPort(),
+                TraceAttributes::USER_AGENT_ORIGINAL => $request->getHeaderLine('User-Agent'),
+                TraceAttributes::URL_QUERY           => $request->getUri()->getQuery(),
+                ...$this->transformHeaders('request', $request->getHeaders()),
+            ]);
+        }
+
+        // response
+        $promise = $proceedingJoinPoint->process();
+        if ($promise instanceof PromiseInterface) {
+            $promise->then(
+                onFulfilled: function (ResponseInterface $response) use ($span) {
+                    $span->setAttribute(TraceAttributes::HTTP_RESPONSE_STATUS_CODE, $response->getStatusCode());
+                    $span->setAttribute(TraceAttributes::NETWORK_PROTOCOL_VERSION, $response->getProtocolVersion());
+                    $span->setAttribute(TraceAttributes::HTTP_RESPONSE_BODY_SIZE, $response->getHeaderLine('Content-Length'));
+                    foreach ($response->getHeaders() as $key => $value) {
+                        $key = Str::lower($key);
+                        if ($this->canTransformHeaders('response', $key)) {
+                            $span->setAttribute("http.response.header.{$key}", $value);
+                        }
+                    }
+                    if ($response->getStatusCode() >= 400 && $response->getStatusCode() < 600) {
+                        $span->setStatus(StatusCode::STATUS_ERROR);
+                    }
+                    $span->end();
+
+                    return $response;
+                },
+                onRejected: function (\Throwable $t) use ($span) {
+                    $this->spanRecordException($span, $t);
+                    $span->end();
+
+                    throw $t;
+                }
+            );
+        }
+
+        return $promise;
     }
 
     /**
@@ -137,14 +132,5 @@ class GuzzleClientAspect extends AbstractAspect
         }
 
         return false;
-    }
-
-    private function getRequestIP($request): string
-    {
-        $ips = $request->getHeaderLine('x-forwarded-for')
-            ?: $request->getHeaderLine('remote-host')
-                ?: $request->getHeaderLine('x-real-ip');
-
-        return explode(',', $ips)[0] ?? '';
     }
 }
