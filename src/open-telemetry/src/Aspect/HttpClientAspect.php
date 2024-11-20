@@ -6,7 +6,7 @@ namespace HyperfContrib\OpenTelemetry\Aspect;
 
 use GuzzleHttp\Client;
 use Hyperf\Di\Aop\ProceedingJoinPoint;
-use Hyperf\Stringable\Str;
+use Hyperf\Di\Exception\Exception;
 use OpenTelemetry\API\Trace\SpanKind;
 use OpenTelemetry\API\Trace\StatusCode;
 use OpenTelemetry\SemConv\TraceAttributes;
@@ -16,14 +16,14 @@ use Throwable;
 class HttpClientAspect extends AbstractAspect
 {
     public array $classes = [
-        Client::class . '::request',
         Client::class . '::requestAsync',
     ];
 
     /**
      * @param ProceedingJoinPoint $proceedingJoinPoint
      * @throws Throwable
-     * @return mixed
+     * @throws Exception
+     * @return mixed|ResponseInterface
      */
     public function process(ProceedingJoinPoint $proceedingJoinPoint)
     {
@@ -43,77 +43,41 @@ class HttpClientAspect extends AbstractAspect
             ->startSpan();
 
         $span->setAttributes([
-            TraceAttributes::HTTP_REQUEST_METHOD => $method,
-            TraceAttributes::URL_PATH            => $uri,
-            'http.request.headers'               => $headers,
+            TraceAttributes::HTTP_REQUEST_METHOD      => $method,
+            TraceAttributes::URL_FULL                 => $uri,
+            TraceAttributes::NETWORK_PROTOCOL_VERSION => $arguments['protocol_version'] ?? '',
+            TraceAttributes::USER_AGENT_ORIGINAL      => $headers['User-Agent']         ?? '',
+            TraceAttributes::HTTP_REQUEST_BODY_SIZE   => $headers['Content-Length']     ?? '',
+            TraceAttributes::SERVER_ADDRESS           => parse_url($uri, PHP_URL_HOST),
+            TraceAttributes::SERVER_PORT              => parse_url($uri, PHP_URL_PORT),
+            TraceAttributes::URL_PATH                 => parse_url($uri, PHP_URL_PATH),
         ]);
 
         // response
-        $result = $proceedingJoinPoint->process();
-        if ($result instanceof ResponseInterface) {
+        $response = $proceedingJoinPoint->process();
+        if ($response instanceof ResponseInterface) {
             $span->setAttributes([
-                TraceAttributes::HTTP_RESPONSE_STATUS_CODE => $result->getStatusCode(),
-                'http.response.headers'                    => $result->getHeaders(),
-                'http.response.body'                       => $this->getResponsePayload($result),
+                TraceAttributes::HTTP_RESPONSE_STATUS_CODE => $response->getStatusCode(),
+                TraceAttributes::NETWORK_PROTOCOL_VERSION  => $response->getProtocolVersion(),
+                TraceAttributes::HTTP_RESPONSE_BODY_SIZE   => $response->getHeaderLine('Content-Length'),
             ]);
-
-            try {
-                $result = $proceedingJoinPoint->process();
-                $span->setStatus(StatusCode::STATUS_OK);
-            } catch (\Throwable $e) {
-                $this->spanRecordException($span, $e);
-
-                throw $e;
-            } finally {
-                $span->end();
-            }
+            $response->getBody()->rewind();
         }
-
-        $result->getBody()->rewind();
-
-        return $result;
-    }
-
-    /**
-     * @param ResponseInterface $response
-     * @return mixed|string
-     */
-    private function getResponsePayload(ResponseInterface $response)
-    {
-        $stream = $response->getBody();
 
         try {
-            if ($stream->isSeekable()) {
-                $stream->rewind();
+            if ($response->getStatusCode() >= 400 && $response->getStatusCode() < 600) {
+                $span->setStatus(StatusCode::STATUS_ERROR);
+            } else {
+                $span->setStatus(StatusCode::STATUS_OK);
             }
+        } catch (\Throwable $e) {
+            $this->spanRecordException($span, $e);
 
-            $content = $stream->getContents();
-        } catch (Throwable $e) {
-            return 'Purged By OpenTelemetry: ' . $e->getMessage();
+            throw $e;
+        } finally {
+            $span->end();
         }
 
-        if (empty($content)) {
-            return 'Empty Response';
-        }
-
-        if (! $this->contentWithinLimits($content)) {
-            return 'Purged By OpenTelemetry';
-        }
-        if (
-            is_array(json_decode($content, true))
-            && json_last_error() === JSON_ERROR_NONE
-        ) {
-            return json_decode($content, true);
-        }
-        if (Str::startsWith(strtolower($response->getHeaderLine('content-type') ?: ''), 'text/plain')) {
-            return $content;
-        }
-
-        return 'HTML Response';
-    }
-
-    private function contentWithinLimits(string $content): bool
-    {
-        return mb_strlen($content) / 1000 <= 64;
+        return $response;
     }
 }
