@@ -42,11 +42,10 @@ class GuzzleClientAspect extends AbstractAspect
          */
         $request = $proceedingJoinPoint->arguments['keys']['request'];
         $method  = $request->getMethod();
-        $uri     = (string) $request->getUri();
 
         // request
         $span = $this->instrumentation->tracer()
-            ->spanBuilder($method . ' ' . $uri)
+            ->spanBuilder($method . ' ' . $request->getUri()->getPath())
             ->setParent($parentContext)
             ->setSpanKind(SpanKind::KIND_CLIENT)
             ->startSpan();
@@ -58,7 +57,7 @@ class GuzzleClientAspect extends AbstractAspect
         if ($request instanceof RequestInterface) {
             $span->setAttributes([
                 TraceAttributes::HTTP_REQUEST_METHOD => $method,
-                TraceAttributes::URL_FULL            => $uri,
+                TraceAttributes::URL_FULL            => (string) $request->getUri(),
                 TraceAttributes::URL_PATH            => $request->getUri()->getPath(),
                 TraceAttributes::URL_SCHEME          => $request->getUri()->getScheme(),
                 TraceAttributes::SERVER_ADDRESS      => $request->getUri()->getHost(),
