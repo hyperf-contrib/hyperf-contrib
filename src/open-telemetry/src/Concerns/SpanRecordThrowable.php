@@ -21,8 +21,6 @@ trait SpanRecordThrowable
     protected function spanRecordException(SpanInterface $span, ?Throwable $e = null): void
     {
         if ($e === null) {
-            $span->setStatus(StatusCode::STATUS_OK);
-
             return;
         }
 
