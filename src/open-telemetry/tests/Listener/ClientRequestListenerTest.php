@@ -63,7 +63,7 @@ class ClientRequestListenerTest extends TestCase
 
         $this->assertSame('GET /path', $span->getName());
         $this->assertSame(SpanKind::KIND_SERVER, $span->getKind());
-        $this->assertSame(StatusCode::STATUS_OK, $span->getStatus()->getCode());
+        $this->assertSame(StatusCode::STATUS_UNSET, $span->getStatus()->getCode());
         $this->assertSame('GET', $attributes->get('http.request.method'));
         $this->assertSame('http://localhost:80/path?field1=value1&field2=value2', $attributes->get('url.full'));
         $this->assertSame('/path', $attributes->get('url.path'));
