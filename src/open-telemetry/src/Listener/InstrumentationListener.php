@@ -7,6 +7,7 @@ namespace HyperfContrib\OpenTelemetry\Listener;
 use Hyperf\Contract\ConfigInterface;
 use Hyperf\Contract\ContainerInterface;
 use HyperfContrib\OpenTelemetry\Concerns\SpanRecordThrowable;
+use HyperfContrib\OpenTelemetry\Contract\InstrumentationInterface;
 use HyperfContrib\OpenTelemetry\Switcher;
 use OpenTelemetry\API\Instrumentation\CachedInstrumentation;
 
@@ -33,7 +34,7 @@ abstract class InstrumentationListener
      */
     public function __construct(
         protected readonly ContainerInterface $container,
-        protected readonly CachedInstrumentation $instrumentation,
+        protected readonly InstrumentationInterface $instrumentation,
         protected readonly Switcher $switcher,
     ) {
         $this->config = $this->container->get(ConfigInterface::class);

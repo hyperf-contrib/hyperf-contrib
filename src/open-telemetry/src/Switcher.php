@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace HyperfContrib\OpenTelemetry;
 
 use Hyperf\Contract\ConfigInterface;
-use OpenTelemetry\API\Instrumentation\CachedInstrumentation;
+use HyperfContrib\OpenTelemetry\Contract\InstrumentationInterface;
 
 class Switcher
 {
     public function __construct(
-        protected readonly CachedInstrumentation $instrumentation,
+        protected readonly InstrumentationInterface $instrumentation,
         protected readonly ConfigInterface $config,
     ) {
     }

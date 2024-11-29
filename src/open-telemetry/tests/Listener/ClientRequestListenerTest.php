@@ -6,11 +6,11 @@ namespace HyperfContrib\OpenTelemetry\Tests\Listener;
 
 use Hyperf\HttpServer\Event\RequestReceived;
 use Hyperf\HttpServer\Event\RequestTerminated;
+use HyperfContrib\OpenTelemetry\Contract\InstrumentationInterface;
 use HyperfContrib\OpenTelemetry\Listener\ClientRequestListener;
 use HyperfContrib\OpenTelemetry\Switcher;
 use HyperfContrib\OpenTelemetry\Tests\TestCase;
 use Mockery;
-use OpenTelemetry\API\Instrumentation\CachedInstrumentation;
 use OpenTelemetry\API\Trace\SpanKind;
 use OpenTelemetry\API\Trace\StatusCode;
 use OpenTelemetry\SDK\Trace\ImmutableSpan;
@@ -31,7 +31,7 @@ class ClientRequestListenerTest extends TestCase
 
         $listener = new ClientRequestListener(
             container: $container,
-            instrumentation: $container->get(CachedInstrumentation::class),
+            instrumentation: $container->get(InstrumentationInterface::class),
             switcher: $container->get(Switcher::class),
         );
 

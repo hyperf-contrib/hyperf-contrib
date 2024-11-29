@@ -8,8 +8,8 @@ use Hyperf\Contract\ConfigInterface;
 use Hyperf\Contract\ContainerInterface;
 use Hyperf\Di\Aop\AbstractAspect as BaseAbstractAspect;
 use HyperfContrib\OpenTelemetry\Concerns\SpanRecordThrowable;
+use HyperfContrib\OpenTelemetry\Contract\InstrumentationInterface;
 use HyperfContrib\OpenTelemetry\Switcher;
-use OpenTelemetry\API\Instrumentation\CachedInstrumentation;
 
 abstract class AbstractAspect extends BaseAbstractAspect
 {
@@ -25,7 +25,7 @@ abstract class AbstractAspect extends BaseAbstractAspect
      */
     public function __construct(
         protected readonly ContainerInterface $container,
-        protected readonly CachedInstrumentation $instrumentation,
+        protected readonly InstrumentationInterface $instrumentation,
         protected readonly Switcher $switcher,
     ) {
         $this->config = $this->container->get(ConfigInterface::class);

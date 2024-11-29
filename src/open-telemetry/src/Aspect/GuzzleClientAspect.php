@@ -27,7 +27,6 @@ class GuzzleClientAspect extends AbstractAspect
     /**
      * @throws \Throwable
      * @throws Exception
-     * @return mixed|ResponseInterface
      */
     public function process(ProceedingJoinPoint $proceedingJoinPoint)
     {

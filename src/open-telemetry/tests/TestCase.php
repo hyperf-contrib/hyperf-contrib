@@ -9,6 +9,8 @@ use Hyperf\Config\Config;
 use Hyperf\Contract\ConfigInterface;
 use Hyperf\Contract\ContainerInterface;
 use Hyperf\Testing\Concerns\RunTestsInCoroutine;
+use HyperfContrib\OpenTelemetry\Contract\InstrumentationInterface;
+use HyperfContrib\OpenTelemetry\Instrumentation;
 use HyperfContrib\OpenTelemetry\Switcher;
 use Mockery;
 use OpenTelemetry\API\Instrumentation\CachedInstrumentation;
@@ -83,19 +85,18 @@ abstract class TestCase extends BaseTestCase
             new Config($config)
         );
 
-        $container->shouldReceive('get')->with(CachedInstrumentation::class)->andReturns(
-            new CachedInstrumentation(
-                name: 'hyperf-contrib/open-telemetry',
-                schemaUrl: Version::VERSION_1_27_0->url(),
-                attributes: [
-                    'instrumentation.name' => 'hyperf-contrib/open-telemetry',
-                ],
+        $container->shouldReceive('get')->with(InstrumentationInterface::class)->andReturns(
+            new Instrumentation(
+                new CachedInstrumentation(
+                    name: 'hyperf-contrib/open-telemetry',
+                    schemaUrl: Version::VERSION_1_27_0->url(),
+                )
             ),
         );
 
         $container->shouldReceive('get')->with(Switcher::class)->andReturns(
             new Switcher(
-                $container->get(CachedInstrumentation::class),
+                $container->get(InstrumentationInterface::class),
                 $container->get(ConfigInterface::class),
             )
         );

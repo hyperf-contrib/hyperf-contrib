@@ -6,11 +6,11 @@ namespace HyperfContrib\OpenTelemetry\Tests\Listener;
 
 use Hyperf\Database\Connection;
 use Hyperf\Database\Events\QueryExecuted;
+use HyperfContrib\OpenTelemetry\Contract\InstrumentationInterface;
 use HyperfContrib\OpenTelemetry\Listener\DbQueryExecutedListener;
 use HyperfContrib\OpenTelemetry\Switcher;
 use HyperfContrib\OpenTelemetry\Tests\TestCase;
 use Mockery;
-use OpenTelemetry\API\Instrumentation\CachedInstrumentation;
 use OpenTelemetry\API\Trace\SpanKind;
 use OpenTelemetry\SDK\Trace\ImmutableSpan;
 use OpenTelemetry\SDK\Trace\StatusData;
@@ -29,7 +29,7 @@ class DbQueryExecutedListenerTest extends TestCase
 
         (new DbQueryExecutedListener(
             $container,
-            $container->get(CachedInstrumentation::class),
+            $container->get(InstrumentationInterface::class),
             $container->get(Switcher::class)
         ))->process(new QueryExecuted(
             'select * from `users` where `id` = ?',
