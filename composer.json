@@ -46,7 +46,7 @@
         "open-telemetry/exporter-otlp": "^1.1",
         "open-telemetry/sdk": "^1.1",
         "open-telemetry/sem-conv": "^1.27",
-        "pestphp/pest": "^2.36",
+        "pestphp/pest": "^3.0",
         "phpstan/phpstan": "^1.12",
         "phpstan/phpstan-mockery": "^1.1",
         "swoole/ide-helper": "^5.1"
