@@ -49,7 +49,7 @@
         "pestphp/pest": "^2.36",
         "phpstan/phpstan": "^1.12",
         "phpstan/phpstan-mockery": "^1.1",
-        "swoole/ide-helper": "^5.1"
+        "swoole/ide-helper": "^6.0"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
