@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace HyperfContrib\OpenTelemetry\Listener;
 
+use function Hyperf\Coroutine\defer;
 use Hyperf\Event\Contract\ListenerInterface;
 use Hyperf\HttpServer\Event\RequestReceived;
 use Hyperf\HttpServer\Event\RequestTerminated;
@@ -13,6 +14,7 @@ use OpenTelemetry\API\Trace\Span;
 use OpenTelemetry\API\Trace\SpanKind;
 use OpenTelemetry\Context\Context;
 use OpenTelemetry\SemConv\TraceAttributes;
+
 use Psr\Http\Message\ServerRequestInterface;
 
 class ClientRequestListener extends InstrumentationListener implements ListenerInterface
@@ -62,6 +64,12 @@ class ClientRequestListener extends InstrumentationListener implements ListenerI
         ]);
 
         Context::storage()->attach($span->storeInContext($context));
+
+        $scope = $span->activate();
+        defer(function () use ($span, $scope) {
+            $span->end();
+            $scope->detach();
+        });
     }
 
     protected function onRequestTerminated(RequestTerminated $event): void
@@ -85,8 +93,8 @@ class ClientRequestListener extends InstrumentationListener implements ListenerI
 
         $this->spanRecordException($span, $event->getThrowable());
 
-        $span->end();
-        $scope->detach();
+        // $span->end();
+        // $scope->detach();
     }
 
     /**
